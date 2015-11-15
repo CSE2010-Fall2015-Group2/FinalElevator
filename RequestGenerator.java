@@ -22,7 +22,7 @@ public class RequestGenerator {
             requestTime.setTime(rand.nextLong()%maxTimeBetweenRequest+currentTime.getTime());
             int from = rand.nextInt(maxFloor);
             int to = rand.nextInt(maxFloor);
-            while(from == to) //make sure the destination floor is not the same as the starting 
+            while(from == to) //make sure the destination floor is not the same as the starting floor
                 to = rand.nextInt(maxFloor);
             int weight = rand.nextInt(maxWeight);
             
