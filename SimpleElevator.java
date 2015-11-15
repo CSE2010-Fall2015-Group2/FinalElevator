@@ -27,4 +27,6 @@ public class SimpleElevator extends Elevator{
     public boolean continueOperate() {
         return !Elevator.servingQueue.isEmpty();
     }
+    
+    
 }
