@@ -39,6 +39,11 @@ public class PassengerRequest {
 		this.floor_to = floor_to;
 		this.weight = weight;
 	}
+        
+        public String toString(){
+            return "From: "+getFloorFrom()+"  To: "
+                    + getFloorTo()+ "   W: " + getWeight()+ "    Time: "+getTimePressedButton();
+        }
 	
 	
 }

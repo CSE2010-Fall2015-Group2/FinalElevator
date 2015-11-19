@@ -16,6 +16,7 @@ public class PassengerReleased {
 	public void setTimeArrived(Time timeArrived) {
 		this.timeArrived = timeArrived;
 	}
+        
 	private PassengerRequest passengerRequest; 
 	private Time timeArrived;  // time when the passenger was arrived 
 	public PassengerReleased(PassengerRequest passengerRequest, Time timeArrived) {
