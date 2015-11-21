@@ -46,7 +46,8 @@ public class SimpleElevator extends Elevator{
     
     public ArrayList<PassengerReleased> move() {
         //stop elevator function if it is not supposed to keep running
-        if (!continueOperate()) return null;
+        if (!continueOperate()) 
+            return null;
 		
         //initialize array to keep track of released passengers during current move
 	ArrayList<PassengerReleased> released =
@@ -58,11 +59,14 @@ public class SimpleElevator extends Elevator{
         long nextRequestTime = servingQueue.peek().getTimePressedButton().getTime();
         long timeNow = currentTime.getTime();
         
+        System.out.println(servingQueue.peek());
         while(!servingQueue.isEmpty() 
                 && nextRequestTime <= timeNow){
-            System.out.println(nextRequestTime);
-            addToFloors(servingQueue.remove());
-            nextRequestTime = servingQueue.peek().getTimePressedButton().getTime();
+            
+            System.out.println(servingQueue.peek());
+            addToFloors(servingQueue.poll());
+            if(!servingQueue.isEmpty())
+                nextRequestTime = servingQueue.peek().getTimePressedButton().getTime();
         }
         
         //if the elevator is at the bottom or top of the shaft then reverse direction
@@ -72,6 +76,7 @@ public class SimpleElevator extends Elevator{
             direction=true;
         
         //let out all passengers looking to get off on this floor
+        
         for(PassengerRequest p: carrage[currentFloor])
             released.add(new PassengerReleased(p,currentTime));
         
@@ -88,14 +93,18 @@ public class SimpleElevator extends Elevator{
         
 
         //look for floor calls in the dirtection of travel
+        System.out.println("looking for floor calls...");
         if(direction){
+            System.out.println("UP");
             int i = currentFloor+1;
             while(i<floors){
+                System.out.println("is this infinite?");
                 if(!floorsQ[i][1].isEmpty()) 
                     addToStops(i);//sorted insert won't duplicate values
                 i++;
             }
         }else{
+            System.out.println("DOWN");
             int i = currentFloor;
             while(i>0){
                 if(!floorsQ[i][0].isEmpty()) 
@@ -110,13 +119,16 @@ public class SimpleElevator extends Elevator{
         
         //figure out what the next stop should be 
         int i, nextFloor=currentFloor;
+        System.out.println("finding next stop...");
         if(!stops.isEmpty()){
             if(direction){
+                System.out.println("UP");
                 i=0;
                 while(stops.get(i)<=currentFloor)
                     i++;
                 nextFloor = stops.get(i);
             }else{
+                System.out.println("DOWN");
                 i=floors;
                 while(stops.get(i)>0)
                     i--;
@@ -167,7 +179,8 @@ public class SimpleElevator extends Elevator{
             stops.add(stops.size(),i);
         }else {
             int j=0;
-            while (stops.get(j) < i) {
+            while (stops.get(j) < i&&j<=stops.size()) {
+                System.out.println("is this infinite?");
                 j++;
             }
             stops.add(j, i);
@@ -184,9 +197,9 @@ public class SimpleElevator extends Elevator{
     
     public static void main(String[] args){
         Elevator e = new SimpleElevator(10,10,10,15,true);
-        e.initialize(RequestGenerator.RequestGenerator(250,10,100,(long)300000));
+        e.initialize(RequestGenerator.RequestGenerator(250,10,100,(long)30000));
         
-        ArrayList<PassengerReleased> output = e.operate();
+       ArrayList<PassengerReleased> output = e.operate();
 		
 		long cost = 0;
 		

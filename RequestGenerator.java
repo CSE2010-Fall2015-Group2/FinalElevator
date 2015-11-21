@@ -11,27 +11,32 @@ public class RequestGenerator {
     public static Queue<PassengerRequest> RequestGenerator(int maxWeight, 
             int maxFloor, int totalPassengers, long maxTimeBetweenRequest){
         
-        Queue<ElevatorProj.PassengerRequest> requests = new LinkedList<>();
-        Time currentTime = new Time(8,0,0);
+        Queue<PassengerRequest> requests = new LinkedList<>();
+        Time cTime = new Time(8,0,0);
         Random rand = new Random();
         Random randl = new Random();
-        Time requestTime = new Time(8,0,0);
+        Time tpb = new Time(8,0,0);
         
         
         
         for(int i=0; i<totalPassengers; i++){
-            currentTime.setTime(Math.abs(randl.nextLong()%maxTimeBetweenRequest)+currentTime.getTime());
-            requestTime.setTime(currentTime.getTime());
-            int from = rand.nextInt(maxFloor);
+            cTime.setTime(Math.abs(randl.nextLong()%maxTimeBetweenRequest)+cTime.getTime());
+            tpb.setTime(cTime.getTime());
+            int from = rand.nextInt(maxFloor+1);
             int to = rand.nextInt(maxFloor);
             while(from == to) //make sure the destination floor is not the same as the starting floor
                 to = rand.nextInt(maxFloor);
             int weight = rand.nextInt(maxWeight);
-            PassengerRequest temp = new PassengerRequest(requestTime,from,to,weight);
+            PassengerRequest temp = new PassengerRequest(new Time(tpb.getTime()),from+1,to,weight);
             requests.add(temp);
-            System.out.println(temp);
+           System.out.println(temp);
         }
         
+//        Queue<PassengerRequest> temp = new LinkedList<>();
+//        while(!requests.isEmpty()){
+//            System.out.println(requests.getLast());
+//            temp.add(requests.removeLast());
+//        }
         return requests;
     }
     
@@ -41,19 +46,19 @@ public class RequestGenerator {
 //        Queue<ElevatorProj.PassengerRequest> requests = new LinkedList<>();
 //        Time currentTime = new Time(8,0,0);
 //        Random rand = new Random();
-//        Time requestTime = new Time(8,0,0);
+//        Time tpb = new Time(8,0,0);
 //        
 //        
 //        
 //        for(int i=0; i<totalPassengers; i++){
-//            requestTime.setTime(rand.nextLong()%maxTimeBetweenRequest+currentTime.getTime());
+//            tpb.setTime(rand.nextLong()%maxTimeBetweenRequest+currentTime.getTime());
 //            int from = rand.nextInt(maxFloor);
 //            int to = rand.nextInt(maxFloor);
 //            while(from == to) //make sure the destination floor is not the same as the starting floor
 //                to = rand.nextInt(maxFloor);
 //            int weight = rand.nextInt(maxWeight);
 //            
-//            requests.add(new PassengerRequest(requestTime,from,to,weight));
+//            requests.add(new PassengerRequest(tpb,from,to,weight));
 //        }
 //        
 //        return requests;
