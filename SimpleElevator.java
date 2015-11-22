@@ -16,36 +16,58 @@ public class SimpleElevator extends Elevator{
             foundStop; 
     int currentWeight, maxWeight;
     
-    
+    /******************************************************************
+     * Constructor for simple elevator
+     * @param capacity
+     * @param timeMoveOneFloor
+     * @param floors
+     * @param doorDelta
+     * @param verbose 
+     */
     public SimpleElevator(int capacity, int timeMoveOneFloor, 
 			int floors, int doorDelta, boolean verbose){
         super(capacity, timeMoveOneFloor, floors, doorDelta, verbose);
-    }
+    }//__________________________________________________________________
     
+    
+    /*********************************************************************
+     * initialize the eleivatot to starting conditions and load in servingQueue 
+     * @param requests 
+     */
     public void initialize(Queue<PassengerRequest> requests) {
-		servingQueue = requests;
-                //0 is down 1 is up!
-                floorsQ = new Queue[floors+1][2];
-                carrage = new Queue[floors+1];
-                stops = new LinkedList<>();
-                
-                addToStops(1);
-                
-                //false is down, true is up
-                direction = true;
-                
-                //initialize all of the floor call queues
-                for(int i=0;i < floorsQ.length; i++)
-                    for(int j=0;j<floorsQ[0].length;j++)
-                        floorsQ[i][j]=new LinkedList<>();
-                
-                
-                for(int i=0;i<carrage.length;i++)
-                    carrage[i]= new LinkedList<>();
-                
-                currentWeight = 0;
-	}
+        servingQueue = requests;
+        //0 is down 1 is up!
+        floorsQ = new Queue[floors+1][2];//used to represent up and down button on each floor
+        carrage = new Queue[floors+1];//used to hold the passengers in the elevator-possible room for improvement return entire queue or list instead of one at a time
+        stops = new LinkedList<>();//holding points the elevator must visit
+
+        //to ensure stops is not empty on start
+        addToStops(1);
+
+        //false is down, true is up
+        direction = true;
+
+        //initialize all of the floor call queues
+        for(int i=0;i < floorsQ.length; i++)
+            for(int j=0;j<floorsQ[0].length;j++)
+                floorsQ[i][j]=new LinkedList<>();
+
+        //initialize all of the queues for holing passengers in the elevator
+        for(int i=0;i<carrage.length;i++)
+            carrage[i]= new LinkedList<>();
+
+        
+        currentWeight = 0;
+        
+        //start up gui around here
+    }//__________________________________________________________________
     
+    
+    /********************************************************************
+     * This method does the heavy lifting all of the functions of the elevator
+     * are carried out here
+     * @return 
+     */
     public ArrayList<PassengerReleased> move() {
         //stop elevator function if it is not supposed to keep running
         if (!continueOperate()) 
@@ -69,6 +91,7 @@ public class SimpleElevator extends Elevator{
             addToFloors(servingQueue.poll());
             if(!servingQueue.isEmpty())
                 nextRequestTime = servingQueue.peek().getTimePressedButton().getTime();
+            //can pass these people or some repusentation of them to the gui
         }
         
         //if the elevator is at the bottom or top of the shaft then reverse direction
@@ -81,6 +104,8 @@ public class SimpleElevator extends Elevator{
         
         for(PassengerRequest p: carrage[currentFloor])
             released.add(new PassengerReleased(p,currentTime));
+        //can pass these to gui as well either here or just the entire released at the end 
+        
         
         //let passengersin that are waiting on this floor to 
         //travle in current direction 
@@ -97,7 +122,10 @@ public class SimpleElevator extends Elevator{
 
         //look for floor calls in the dirtection of travel
         findAllCalls();
+        //there might be a problem here though ask me about it 
         
+        
+        //unused for now 
         if(!foundStop){
             
         }
