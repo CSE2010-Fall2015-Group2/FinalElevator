@@ -22,12 +22,12 @@ public class RequestGenerator {
         for(int i=0; i<totalPassengers; i++){
             cTime.setTime(Math.abs(randl.nextLong()%maxTimeBetweenRequest)+cTime.getTime());
             tpb.setTime(cTime.getTime());
-            int from = rand.nextInt(maxFloor+1);
+            int from = rand.nextInt(maxFloor);
             int to = rand.nextInt(maxFloor);
             while(from == to) //make sure the destination floor is not the same as the starting floor
                 to = rand.nextInt(maxFloor);
             int weight = rand.nextInt(maxWeight);
-            PassengerRequest temp = new PassengerRequest(new Time(tpb.getTime()),from+1,to,weight);
+            PassengerRequest temp = new PassengerRequest(new Time(tpb.getTime()),from+1,to+1,weight);
             requests.add(temp);
            System.out.println(temp);
         }
