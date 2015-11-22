@@ -82,14 +82,15 @@ public class SimpleElevator extends Elevator{
         for(PassengerRequest p: carrage[currentFloor])
             released.add(new PassengerReleased(p,currentTime));
         
-        //let passengers that are waiting on this floor to travle in current direction 
+        //let passengersin that are waiting on this floor to 
+        //travle in current direction 
         int dirTemp = 0;
         if(direction)
             dirTemp =1;
         for(PassengerRequest p: floorsQ[currentFloor][dirTemp])
             if(!isAtCapacity()){
                 carrage[currentFloor].add(p);
-                    addToStops(p.getFloorTo());//sorted insert won't duplicate values
+                    addToStops(p.getFloorTo());//sorted insert/won't duplicate
             }
                 
         
@@ -136,11 +137,13 @@ public class SimpleElevator extends Elevator{
         }
         
         long timeInMiliseconds = currentTime.getTime() + 
-				this.doorDelta*1000 +  // delta to open AND close the door to let the passenger in
-				1000*this.timeMoveOneFloor* (Math.abs(currentFloor - nextFloor));
+				this.doorDelta*1000 +  
+				1000*this.timeMoveOneFloor* 
+                                (Math.abs(currentFloor - nextFloor));
         
         currentTime.setTime(timeInMiliseconds);
-        System.out.println("currentFloor: "+currentFloor+" |::| nextFloor: "+nextFloor+" |::| Time"+ currentTime);
+        System.out.println("currentFloor: "+currentFloor+
+                " |::| nextFloor: "+nextFloor+" |::| Time"+ currentTime);
         System.out.println(stops);
         System.out.println("*************************************************");
         currentFloor = nextFloor;
@@ -282,9 +285,11 @@ public class SimpleElevator extends Elevator{
 			
 			PassengerReleased passenger = output.get(i);
 			Time timeRequested = passenger.getTimeArrived();
-			Time timeLeft = passenger.getPassengerRequest().getTimePressedButton();
+			Time timeLeft = passenger.getPassengerRequest()
+                                .getTimePressedButton();
 
-			cost+=Math.abs(timeLeft.getTime() - timeRequested.getTime());
+			cost+=Math.abs(timeLeft.getTime() - 
+                                timeRequested.getTime());
 		}
 		
 		System.out.println("Total cost (in seconds): " + cost/ 1000);
