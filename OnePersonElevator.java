@@ -116,7 +116,8 @@ public class OnePersonElevator extends Elevator{
 		Elevator elevator = new OnePersonElevator(capacity,
 				secondsPerFloor,floors, timeOpenDoors, verbose);
 		
-		elevator.initialize(elevatorQueue);
+		elevator.initialize(RequestGenerator.RequestGenerator(250,10,100,(long)30000));
+                        //elevatorQueue);
 		
 		ArrayList<PassengerReleased> output = elevator.operate();
 		

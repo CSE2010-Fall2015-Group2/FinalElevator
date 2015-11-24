@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class SimpleElevator extends Elevator{
+public class ImprovedElevator extends Elevator{
     
     
     Queue<PassengerRequest>[][] floorsQ;
@@ -14,6 +14,7 @@ public class SimpleElevator extends Elevator{
     boolean direction,//true-up::false-down
             foundStop; 
     int currentWeight;
+    boolean disable_mandatory_full_travel;
     
     /******************************************************************
      * Constructor for simple elevator
@@ -23,7 +24,7 @@ public class SimpleElevator extends Elevator{
      * @param doorDelta
      * @param verbose 
      */
-    public SimpleElevator(int capacity, int timeMoveOneFloor, 
+    public ImprovedElevator(int capacity, int timeMoveOneFloor, 
 			int floors, int doorDelta, boolean verbose){
         super(capacity, timeMoveOneFloor, floors, doorDelta, verbose);
     }//_____________________________________________________Defualt Constructor
@@ -60,6 +61,17 @@ public class SimpleElevator extends Elevator{
         
         //start up gui around here
     }//_____________________________________________________________initialized
+    /******************************************************************
+     * 
+     * @param disable_mandatory_full_travel
+     * @param at_capacity_off_load_priority
+     * @param tbd 
+     */
+    public void features(boolean disable_mandatory_full_travel,
+            boolean at_capacity_off_load_priority,
+            boolean tbd){
+        this.disable_mandatory_full_travel = disable_mandatory_full_travel;
+    }
     
     
     /********************************************************************
@@ -127,7 +139,21 @@ public class SimpleElevator extends Elevator{
         }
             
         
-        //move to next floor in current direction.
+        //reverse direction if there is no need to continue in current direction
+        if(disable_mandatory_full_travel){    
+            if(!continueInDirection()){
+                if(direction)
+                    direction = false;
+                else
+                    direction = true;
+            }
+        }else{ //reverse direction if at top or bottom of shaft 
+            if(currentFloor==floors)
+                direction=false;
+            else if(currentFloor == 1)
+                direction=true;
+        }
+        
         if(direction)
             currentFloor++;
         else
@@ -288,13 +314,44 @@ public class SimpleElevator extends Elevator{
     }//______________________________________________________removeCurrentFloor
     
     
+    /******************************************************************
+     * returns true if there is any need to continue in current direction
+     * false otherwise
+     * @return 
+     */
+    public boolean continueInDirection(){
+        int i = currentFloor;//start search from here
+        
+        //set default condition for accessing and traversing calls
+        int dirTemp = 0;
+        int increment = -1;
+        
+        //change condition to match direction if nessicary 
+        if(direction){ 
+            dirTemp = 1;
+            increment = 1;
+        }
+        
+        //search for any calls in current direction if there are any return true
+        while(i<floors && i>0){
+            if(!carrage[i].isEmpty()||!floorsQ[i][dirTemp].isEmpty())
+                return true;
+            i += increment;
+        }
+        
+        //no calls found return false
+        return true;
+    }//____________________________________________________continueInDirection
+    
+    
     /********************************************************************
      * Main Method
      * @param args 
      */
     public static void main(String[] args){
-        Elevator e = new SimpleElevator(3000,10,10,15,true);
+        Elevator e = new ImprovedElevator(3000,10,10,15,true);
         e.initialize(RequestGenerator.RequestGenerator(250,10,100,(long)30000));
+        e.features(true,false,false);
         
        ArrayList<PassengerReleased> output = e.operate();
 		
