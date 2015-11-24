@@ -14,7 +14,7 @@ public class SimpleElevator extends Elevator{
     LinkedList<Integer> stops;
     boolean direction,//true-up::false-down
             foundStop; 
-    int currentWeight, maxWeight;
+    int currentWeight;
     
     /******************************************************************
      * Constructor for simple elevator
@@ -80,30 +80,33 @@ public class SimpleElevator extends Elevator{
         //empty passengerRequests into the queues that represent the 
         //floor call buttons from serving queue until the next 
         //Request "hasn't happend yet" or is empty
-        long nextRequestTime = servingQueue.peek().getTimePressedButton().getTime();
-        long timeNow = currentTime.getTime();
-        
-        System.out.println(servingQueue.peek());
-        while(!servingQueue.isEmpty() 
-                && nextRequestTime <= timeNow){
-            
+        if(!servingQueue.isEmpty()){
+            long nextRequestTime = servingQueue.peek().getTimePressedButton().getTime();
+            long timeNow = currentTime.getTime();
+
             System.out.println(servingQueue.peek());
-            addToFloors(servingQueue.poll());
-            if(!servingQueue.isEmpty())
-                nextRequestTime = servingQueue.peek().getTimePressedButton().getTime();
-            //can pass these people or some repusentation of them to the gui
+            while(!servingQueue.isEmpty() 
+                    && nextRequestTime <= timeNow){
+
+                System.out.println(servingQueue.peek());
+                addToFloors(servingQueue.poll());
+                if(!servingQueue.isEmpty())
+                    nextRequestTime = servingQueue.peek().getTimePressedButton().getTime();
+                //can pass these people or some repusentation of them to the gui
+            }
         }
         
         //if the elevator is at the bottom or top of the shaft then reverse direction
-        if(currentFloor==floors-1)
+        if(currentFloor==floors)
             direction=false;
         else if(currentFloor == 1)
             direction=true;
         
         //let out all passengers looking to get off on this floor
-        
+    
         for(PassengerRequest p: carrage[currentFloor])
             released.add(new PassengerReleased(p,currentTime));
+        carrage[currentFloor].clear();
         //can pass these to gui as well either here or just the entire released at the end 
         
         
@@ -112,72 +115,78 @@ public class SimpleElevator extends Elevator{
         int dirTemp = 0;
         if(direction)
             dirTemp =1;
-        for(PassengerRequest p: floorsQ[currentFloor][dirTemp])
-            if(!isAtCapacity()){
-                carrage[currentFloor].add(p);
-                    addToStops(p.getFloorTo());//sorted insert/won't duplicate
-            }
+        while(!floorsQ[currentFloor][dirTemp].isEmpty()
+                &&!isAtCapacity(floorsQ[currentFloor][dirTemp].peek().getWeight())){
+            PassengerRequest p = floorsQ[currentFloor][dirTemp].remove();
+            carrage[p.getFloorTo()].add(p);
+        }
+            
+//        for(PassengerRequest p: floorsQ[currentFloor][dirTemp])
+//            if(!isAtCapacity(p.getWeight())){
+//                carrage[p.getFloorTo()].add(p);
+//            }
                 
         
 
         //look for floor calls in the dirtection of travel
-        findAllCalls();
+//        findAllCalls();
         //there might be a problem here though ask me about it 
         
         
-        //unused for now 
-        if(!foundStop){
-            
-        }
-        
         //if there are no more stops in current direction revese direction
-        if(!foundStop){
-            if(direction)
-                direction = false;
-            else
-                direction = true;
-        }
+//        if(!foundStop){
+//            if(direction)
+//                direction = false;
+//            else
+//                direction = true;
+//        }
             
             
         //remove current floor from the list of stops the elevator needs to make
         //stops.remove(currentFloor);
-        removeCurrentFloor();
+//        removeCurrentFloor();
         
         //figure out what the next stop should be 
-        int i, nextFloor=currentFloor;
-        System.out.println("finding next stop...");
-        if(!stops.isEmpty()){
-            if(direction){
-                System.out.println("UP");
-                i=0;
-                while(i<stops.size() && stops.get(i)<currentFloor){
-                    System.out.println(i);
-                    i++;
-                }
-                nextFloor = stops.get(i);
-            }else{
-                System.out.println("DOWN");
-                i=stops.size()-1;
-                while(i>0&&stops.get(i)>currentFloor)
-                    i--;
-                nextFloor = stops.get(i);
-            }
-        }
+//        int i, nextFloor=currentFloor;
+//        System.out.println("finding next stop...");
+//        if(!stops.isEmpty()){
+//            if(direction){
+//                System.out.println("UP");
+//                i=0;
+//                while(i<stops.size() && stops.get(i)<currentFloor){
+//                    System.out.println(i);
+//                    i++;
+//                }
+//                nextFloor = stops.get(i);
+//            }else{
+//                System.out.println("DOWN");
+//                i=stops.size()-1;
+//                while(i>0&&stops.get(i)>currentFloor)
+//                    i--;
+//                nextFloor = stops.get(i);
+//            }
+//        }
         
+        if(direction)
+            currentFloor++;
+        else
+            currentFloor--;
+         
         long timeInMiliseconds = currentTime.getTime() + 
 				this.doorDelta*1000 +  
-				1000*this.timeMoveOneFloor* 
-                                (Math.abs(currentFloor - nextFloor));
+				1000*1;//this.timeMoveOneFloor* 
+                                //(Math.abs(currentFloor - nextFloor));
         
         currentTime.setTime(timeInMiliseconds);
         System.out.println("currentFloor: "+currentFloor+
-                " |::| nextFloor: "+nextFloor+" |::| Time"+ currentTime);
-        System.out.println(stops);
+                //" |::| nextFloor: "+nextFloor+
+                " |::| Time"+ currentTime);
+//        System.out.println(stops);
         System.out.println("*************************************************");
-        currentFloor = nextFloor;
+//        currentFloor = nextFloor;
         
         return released;
-    }
+    }//__________________________________________________________________
     
     
     /*****************************************************************
@@ -185,15 +194,25 @@ public class SimpleElevator extends Elevator{
      * @return 
      */
     public boolean continueOperate() {
-        return !servingQueue.isEmpty();
+        if(!servingQueue.isEmpty())
+            return true;
+        for(int i = 0; i<floors; i++)
+            if(!floorsQ[i][0].isEmpty() || !floorsQ[i][1].isEmpty())
+                return true;  
+        for(int i = 0; i<floors; i++)
+            if(!carrage[i].isEmpty())
+                return true;
+        return false;
     }//________________________________________________________________
+    
+    
     
     /*****************************************************************
      * searches floor calls and elevator calls and determines which floor is
-     * next. it only checks the diredction of current travel for the elevator.
+     * next. it only checks the direction of current travel for the elevator.
      * if it finds a stop to be added it sets a flag to true. if after this runs
      * and the flag is still set to false the elevator should change direction
-     * than run this again and if still the falg is not set the elevator has no 
+     * than run this again and if still the flag is not set the elevator has no 
      * calls and should either return to "home" position or stay put.
      */
     public void findAllCalls(){
@@ -254,8 +273,8 @@ public class SimpleElevator extends Elevator{
      * person into the elevator false otherwise
      * @return 
      */
-    public boolean isAtCapacity(){
-        return currentWeight-capacity-maxWeight <=0;
+    public boolean isAtCapacity(int nextPerson){
+        return currentWeight + nextPerson -capacity <=0;
     }//_________________________________________________________________
     
     
@@ -303,7 +322,7 @@ public class SimpleElevator extends Elevator{
      */
     public static void main(String[] args){
         Elevator e = new SimpleElevator(10,10,10,15,true);
-        e.initialize(RequestGenerator.RequestGenerator(250,10,100,(long)30000));
+        e.initialize(RequestGenerator.RequestGenerator(250,10,10,(long)30000));
         
        ArrayList<PassengerReleased> output = e.operate();
 		
