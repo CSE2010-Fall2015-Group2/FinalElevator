@@ -9,7 +9,7 @@ public class SimpleElevator extends Elevator{
     
     
     Queue<PassengerRequest>[][] floorsQ;
-    Queue<PassengerRequest>[] carrage;
+    Queue<PassengerRequest>[] carriage;
     LinkedList<Integer> stops;
     boolean direction,//true-up::false-down
             foundStop; 
@@ -41,11 +41,8 @@ public class SimpleElevator extends Elevator{
         servingQueue = requests;
         //0 is down 1 is up!
         floorsQ = new Queue[floors+1][2];//used to represent up and down button on each floor
-        carrage = new Queue[floors+1];//used to hold the passengers in the elevator-possible room for improvement return entire queue or list instead of one at a time
+        carriage = new Queue[floors+1];//used to hold the passengers in the elevator-possible room for improvement return entire queue or list instead of one at a time
         stops = new LinkedList<>();//holding points the elevator must visit
-
-        //to ensure stops is not empty on start
-        addToStops(1);
 
         //false is down, true is up
         direction = true;
@@ -56,8 +53,8 @@ public class SimpleElevator extends Elevator{
                 floorsQ[i][j]=new LinkedList<>();
 
         //initialize all of the queues for holing passengers in the elevator
-        for(int i=0;i<carrage.length;i++)
-            carrage[i]= new LinkedList<>();
+        for(int i=0;i<carriage.length;i++)
+            carriage[i]= new LinkedList<>();
 
         
         currentWeight = 0;
@@ -107,11 +104,11 @@ public class SimpleElevator extends Elevator{
         
         
         //let out all passengers looking to get off on this floor
-        for(PassengerRequest p: carrage[currentFloor])
+        for(PassengerRequest p: carriage[currentFloor])
             released.add(
                     new PassengerReleased(p,new Time(currentTime.getTime())));
 
-        carrage[currentFloor].clear();
+        carriage[currentFloor].clear();
         //can pass these to gui as well either here or just the entire released at the end 
         
         
@@ -124,7 +121,7 @@ public class SimpleElevator extends Elevator{
                 &&!isAtCapacity(floorsQ[currentFloor][dirTemp]
                         .peek().getWeight())){
             PassengerRequest p = floorsQ[currentFloor][dirTemp].remove();
-            carrage[p.getFloorTo()].add(p);
+            carriage[p.getFloorTo()].add(p);
         }
             
         
@@ -164,7 +161,7 @@ public class SimpleElevator extends Elevator{
             if(!floorsQ[i][0].isEmpty() || !floorsQ[i][1].isEmpty())
                 return true;  
         for(int i = 0; i<floors; i++)
-            if(!carrage[i].isEmpty())
+            if(!carriage[i].isEmpty())
                 return true;
         return false;
     }//_____________________________________________________continueOperate

@@ -9,16 +9,19 @@ public class ImprovedElevator extends Elevator{
     
     
     Queue<PassengerRequest>[][] floorsQ;
-    Queue<PassengerRequest>[] carrage;
+    Queue<PassengerRequest>[] carriage;
     LinkedList<Integer> stops;
     boolean direction,//true-up::false-down
             foundStop; 
     int currentWeight;
-    boolean disable_mandatory_full_travel;
+    boolean disable_mandatory_full_travel, auto_decide_function;
     static int passengers, eCap, numOfFloors,
              maxPassengerWeight, doorOpenTime, betweenFloors;
     static long passengerDelta;
-    
+    private int upFloorQCount;
+    private int downFloorQCount;
+    private int carriageCount;
+   
     /******************************************************************
      * Constructor for simple elevator
      * @param capacity
@@ -41,11 +44,8 @@ public class ImprovedElevator extends Elevator{
         servingQueue = requests;
         //0 is down 1 is up!
         floorsQ = new Queue[floors+1][2];//used to represent up and down button on each floor
-        carrage = new Queue[floors+1];//used to hold the passengers in the elevator-possible room for improvement return entire queue or list instead of one at a time
+        carriage = new Queue[floors+1];//used to hold the passengers in the elevator-possible room for improvement return entire queue or list instead of one at a time
         stops = new LinkedList<>();//holding points the elevator must visit
-
-        //to ensure stops is not empty on start
-        addToStops(1);
 
         //false is down, true is up
         direction = true;
@@ -54,26 +54,28 @@ public class ImprovedElevator extends Elevator{
         for(int i=0;i < floorsQ.length; i++)
             for(int j=0;j<floorsQ[0].length;j++)
                 floorsQ[i][j]=new LinkedList<>();
+        upFloorQCount = 0;//DEPRECATED
+        downFloorQCount = 0;//DEPRECATED
 
         //initialize all of the queues for holing passengers in the elevator
-        for(int i=0;i<carrage.length;i++)
-            carrage[i]= new LinkedList<>();
+        for(int i=0;i<carriage.length;i++)
+            carriage[i]= new LinkedList<>();
+        carriageCount=0;
 
         
         currentWeight = 0;
-        
-        //enable current features
-        features(true,false,false);
+
         
         //start up gui around here
     }//_____________________________________________________________initialized
     
     
     /******************************************************************
-     * 
+     * DEPRECATED
      * @param disable_mandatory_full_travel
-     * @param at_capacity_off_load_priority
-     * @param tbd 
+     * @param at_capacity_off_load_priority //already part of default operation
+     *                                      //and can't be deactivated
+     * @param auto_decide_function //TODO implement
      */
     public void features(boolean disable_mandatory_full_travel,
             boolean at_capacity_off_load_priority,
@@ -117,6 +119,12 @@ public class ImprovedElevator extends Elevator{
             }
         }
         
+        //Check for auto_decide_function
+        if(auto_decide_function){
+            
+        }
+            
+        
         //if the elevator is at the bottom or top of the shaft then reverse direction
         if(currentFloor==floors)
             direction=false;
@@ -125,17 +133,19 @@ public class ImprovedElevator extends Elevator{
         
         
         //let out all passengers looking to get off on this floor
-        for(PassengerRequest p: carrage[currentFloor]){
+        for(PassengerRequest p: carriage[currentFloor]){
             released.add(
                     new PassengerReleased(p,new Time(currentTime.getTime())));
             openedDoor = true;
         }
-        carrage[currentFloor].clear();
+        carriage[currentFloor].clear();
         //can pass these to gui as well either here or just the entire released at the end 
         
         
         //let passengersin that are waiting on this floor to 
         //travle in current direction 
+        //Will not open doors if there is no room on elevator for the next 
+        //person to fit
         int dirTemp = 0;
         if(direction)
             dirTemp =1;
@@ -143,7 +153,8 @@ public class ImprovedElevator extends Elevator{
                 &&!isAtCapacity(floorsQ[currentFloor][dirTemp]
                         .peek().getWeight())){
             PassengerRequest p = floorsQ[currentFloor][dirTemp].remove();
-            carrage[p.getFloorTo()].add(p);
+            carriage[p.getFloorTo()].add(p);
+            openedDoor = true;
         }
             
         
@@ -202,7 +213,7 @@ public class ImprovedElevator extends Elevator{
             if(!floorsQ[i][0].isEmpty() || !floorsQ[i][1].isEmpty())
                 return true;  
         for(int i = 0; i<floors; i++)
-            if(!carrage[i].isEmpty())
+            if(!carriage[i].isEmpty())
                 return true;
         return false;
     }//_____________________________________________________continueOperate
@@ -258,6 +269,7 @@ public class ImprovedElevator extends Elevator{
             floorsQ[passenger.getFloorFrom()][1].add(passenger);
         else
              floorsQ[passenger.getFloorFrom()][0].add(passenger);
+        
     }//_____________________________________________________________addToFloors
     
     
@@ -342,7 +354,7 @@ public class ImprovedElevator extends Elevator{
         
         //search for any calls in current direction if there are any return true
         while(i<floors && i>0){
-            if(!carrage[i].isEmpty()||!floorsQ[i][dirTemp].isEmpty())
+            if(!carriage[i].isEmpty()||!floorsQ[i][dirTemp].isEmpty())
                 return true;
             i += increment;
         }
