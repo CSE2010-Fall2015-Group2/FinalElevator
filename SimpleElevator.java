@@ -14,6 +14,10 @@ public class SimpleElevator extends Elevator{
     boolean direction,//true-up::false-down
             foundStop; 
     int currentWeight;
+    static int passengers, eCap, numOfFloors,
+             maxPassengerWeight, doorOpenTime, betweenFloors;
+    static long passengerDelta;
+    
     
     /******************************************************************
      * Constructor for simple elevator
@@ -71,9 +75,6 @@ public class SimpleElevator extends Elevator{
         //stop elevator function if it is not supposed to keep running
         if (!continueOperate()) 
             return null;
-        
-        //changed to true if the elevator has to open doors on this floor
-        boolean openedDoor = false;
 		
         //initialize array to keep track of released passengers during current move
 	ArrayList<PassengerReleased> released = new ArrayList<>();
@@ -97,6 +98,7 @@ public class SimpleElevator extends Elevator{
             }
         }
         
+        
         //if the elevator is at the bottom or top of the shaft then reverse direction
         if(currentFloor==floors)
             direction=false;
@@ -105,11 +107,10 @@ public class SimpleElevator extends Elevator{
         
         
         //let out all passengers looking to get off on this floor
-        for(PassengerRequest p: carrage[currentFloor]){
+        for(PassengerRequest p: carrage[currentFloor])
             released.add(
                     new PassengerReleased(p,new Time(currentTime.getTime())));
-            openedDoor = true;
-        }
+
         carrage[currentFloor].clear();
         //can pass these to gui as well either here or just the entire released at the end 
         
@@ -134,15 +135,10 @@ public class SimpleElevator extends Elevator{
             currentFloor--;
         
         //add the time to move one floor and time to open and close door
-        long timeInMiliseconds;
-        if(openedDoor)
-            timeInMiliseconds = currentTime.getTime() + 
+        long timeInMiliseconds = currentTime.getTime() + 
 				this.doorDelta*1000 +  
                                 1000*this.timeMoveOneFloor;
-        else
-            timeInMiliseconds = currentTime.getTime() + 
-                                1000*this.timeMoveOneFloor;
-        
+
         currentTime.setTime(timeInMiliseconds);
         
         //status print for debug and tracking purposes
@@ -292,9 +288,20 @@ public class SimpleElevator extends Elevator{
      * Main Method
      * @param args 
      */
+    
+    
     public static void main(String[] args){
-        Elevator e = new SimpleElevator(3000,10,10,15,true);
-        e.initialize(RequestGenerator.RequestGenerator(250,10,100,(long)30000));
+        
+        eCap = 3000;//lbs
+        numOfFloors = 150;
+        passengerDelta = 30000;//max time between passengers in mS.
+        passengers = 100;//number of people
+        maxPassengerWeight = 250;
+        betweenFloors = 10;
+        doorOpenTime = 15;
+        
+        Elevator e = new SimpleElevator(eCap,betweenFloors,numOfFloors,doorOpenTime,true);
+        e.initialize(RequestGenerator.RequestGenerator(maxPassengerWeight,numOfFloors,passengers,passengerDelta));
         
        ArrayList<PassengerReleased> output = e.operate();
 		

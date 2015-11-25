@@ -15,6 +15,9 @@ public class ImprovedElevator extends Elevator{
             foundStop; 
     int currentWeight;
     boolean disable_mandatory_full_travel;
+    static int passengers, eCap, numOfFloors,
+             maxPassengerWeight, doorOpenTime, betweenFloors;
+    static long passengerDelta;
     
     /******************************************************************
      * Constructor for simple elevator
@@ -59,8 +62,13 @@ public class ImprovedElevator extends Elevator{
         
         currentWeight = 0;
         
+        //enable current features
+        features(true,false,false);
+        
         //start up gui around here
     }//_____________________________________________________________initialized
+    
+    
     /******************************************************************
      * 
      * @param disable_mandatory_full_travel
@@ -69,9 +77,9 @@ public class ImprovedElevator extends Elevator{
      */
     public void features(boolean disable_mandatory_full_travel,
             boolean at_capacity_off_load_priority,
-            boolean tbd){
+            boolean auto_decide_function){
         this.disable_mandatory_full_travel = disable_mandatory_full_travel;
-    }
+    }//______________________________________________________________features
     
     
     /********************************************************************
@@ -175,7 +183,7 @@ public class ImprovedElevator extends Elevator{
         System.out.println("currentFloor: "+currentFloor+
                 //" |::| nextFloor: "+nextFloor+
                 " |::| Time"+ currentTime);
-        System.out.println("*************************************************");
+        System.out.println("*********************************");
 
         
         return released;
@@ -349,9 +357,17 @@ public class ImprovedElevator extends Elevator{
      * @param args 
      */
     public static void main(String[] args){
-        Elevator e = new ImprovedElevator(3000,10,10,15,true);
-        e.initialize(RequestGenerator.RequestGenerator(250,10,100,(long)30000));
-        e.features(true,false,false);
+        eCap = 3000;//lbs
+        numOfFloors = 150;
+        passengerDelta = 30000;//max time between passengers in mS.
+        passengers = 100;//number of people
+        maxPassengerWeight = 250;
+        betweenFloors = 10;
+        doorOpenTime = 15;
+        
+        Elevator e = new SimpleElevator(eCap,betweenFloors,numOfFloors,doorOpenTime,true);
+        e.initialize(RequestGenerator.RequestGenerator(maxPassengerWeight,numOfFloors,passengers,passengerDelta));
+       
         
        ArrayList<PassengerReleased> output = e.operate();
 		
@@ -370,6 +386,4 @@ public class ImprovedElevator extends Elevator{
 		
 		System.out.println("Total cost (in seconds): " + cost/ 1000);
     }//_________________________________________________________________main
-    
-    
 }
